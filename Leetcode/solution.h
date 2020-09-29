@@ -6,6 +6,9 @@
 #include <list>
 #include <queue>
 #include <stack>
+#include <unordered_map>
+#include <unordered_set>
+
 using namespace std;
 
 struct TreeNode {
@@ -482,7 +485,7 @@ class Solution {
 	}
 
 	int videoStitching(vector<vector<int>>& clips, int T) {
-
+		
 	}
 
 	string decodeString(string s) {
@@ -515,7 +518,106 @@ class Solution {
 		return res;
 	}
 
-	int flipgame(vector<int>& fronts, vector<int>& backs) {
-
+	int climbStairs(int n) {
+		if (n == 1)
+			return 1;
+		vector<int> dp(n + 1, 0);
+		dp[1] = 1;
+		dp[2] = 2;
+		for (int i = 3; i <= n; ++i) {
+			dp[i] = dp[i - 1] + dp[i - 2];
+		}
+		return dp[n];
 	}
+
+	int lengthOfLongestSubstring(string s) {
+		if (s.size() == 0)
+			return 0;
+		unordered_set<char> lookup;
+		int maxStr = 0;
+		int left = 0;
+		for (auto i = 0; i < s.size(); ++i) {
+			while (lookup.find(s[i]) != lookup.end()) {
+				lookup.erase(s[left]);
+				++left;
+			}
+			maxStr = max(maxStr, i - left + 1);
+			lookup.insert(s[i]);
+		}
+		return maxStr;
+	}
+
+	bool isPossibleDivide(vector<int>& nums, int k) {
+		map<int, int> s;
+		for (int num : nums) {
+			++s[num];
+		}
+		for (auto iter = s.begin(); iter != s.end(); ++iter) {
+			int num = iter->first;
+			int occ = iter->second;
+			if (occ > 0) {
+				auto it = next(iter);
+				for (auto i = 1; i < k; ++i, ++it) {
+					if (it != s.end() && it->first == num + i && it->second >= occ)
+						it->second -= occ;
+					else
+						return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	int minCost(vector<vector<int>>& costs) {
+		if (!costs.size())
+			return 0;
+		int len = costs.size();
+		vector<vector<int>> dp(len, vector<int>(3, 0));
+		dp[0][0] = costs[0][0];
+		dp[0][1] = costs[0][1];
+		dp[0][2] = costs[0][2];
+		for (int i = 1; i < len; ++i) {
+			for (int j = 0; j < 3; ++j) {
+				dp[i][j] = costs[i][j] + fmin(dp[i - 1][(j + 1) % 3], dp[i - 1][(j + 2) % 3]);
+			}
+		}
+		return fmin(dp[len - 1][0], fmin(dp[len - 1][1], dp[len - 1][2]));
+	}
+
+	int balancedString(string s) {
+		vector<char> chars{ 'Q', 'W', 'E', 'R' };
+		unordered_map<char, int> cnt;
+		for (char ch : s)
+			++cnt[ch];
+		int exception = s.size() / 4;
+		bool balance = true;
+		for (char ch : chars) {
+			if (cnt[ch] != exception)
+				balance = false;
+			cnt[ch] -= exception;
+		}
+		if (balance == true)
+			return 0;
+		int left = 0, right = 0, n = s.size(), ans = n;
+		while (left <= right && right < n) {
+			--cnt[s[right]];
+			bool find = true;
+			while (find) {
+
+			}
+		}
+	}
+
+	bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
+		vector<vector<int>> p{ p1,p2,p3,p4 };
+		sort(p.begin(), p.end(), [](const auto& p1,const auto& p2) {
+			return p1[0] == p2[0] ? p1[1] < p2[1] : p1[0] < p2[0];
+		});
+		return dist(p[0], p[1]) != 0 && dist(p[0], p[1]) == dist(p[1], p[3]) && dist(p[1], p[3]) == dist(p[3], p[2]) && dist(p[3], p[2]) == dist(p[2], p[0]) && dist(p[0], p[3]) == dist(p[1], p[2]);
+	}
+
+	double dist(const vector<int>& p1, const vector<int>& p2) {
+		return (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[0] - p1[0]) * (p2[0] - p1[0]);
+	}
+
 };
