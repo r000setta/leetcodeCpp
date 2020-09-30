@@ -604,7 +604,7 @@ class Solution {
 			bool find = true;
 			while (find) {
 
-			}
+			}z
 		}
 	}
 
@@ -620,4 +620,53 @@ class Solution {
 		return (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[0] - p1[0]) * (p2[0] - p1[0]);
 	}
 
+	TreeNode* insertIntoBST(TreeNode* root, int val) {
+		if (root == nullptr)
+			return new TreeNode(val);
+		TreeNode* pos = root;
+		while (pos != nullptr) {
+			if (val < pos->val) {
+				if (pos->left == nullptr) {
+					pos->left = new TreeNode(val);
+					break;
+				}
+				else {
+					pos = pos->left;
+				}
+			}
+			else {
+				if (pos->right == nullptr) {
+					pos->right = new TreeNode(val);
+					break;
+				}
+				else {
+					pos = pos->right;
+				}
+			}
+		}
+		return root;
+	}
+
+	string tictactoe(vector<string>& board) {
+		int len = board.size();
+		int left = 0, right = 0, ver = 0, hor = 0;
+		bool flag = false;
+		for (auto i = 0; i < len; ++i) {
+			ver = 0, hor = 0;
+			for (auto j = 0; j < len; ++j) {
+				hor += (int)board[i][j];
+				ver += (int)board[j][i];
+				if (board[i][j] == ' ') flag = true;
+			}
+			if (hor == (int)'X' * len || ver == (int)'X' * len) return "X";
+			if (hor == (int)'O' * len || ver == (int)'O' * len) return "O";
+
+			left += (int)board[i][i];
+			right += (int)board[i][len - i - 1];
+		}
+		if (left == (int)'X' * len || right == (int)'X' * len) return "X";
+		if (left == (int)'O' * len || right == (int)'O' * len) return "O";
+		if (flag) return "Pending";
+		return "Draw";
+	}
 };
