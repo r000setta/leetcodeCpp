@@ -669,4 +669,125 @@ class Solution {
 		if (flag) return "Pending";
 		return "Draw";
 	}
+
+	int minimumOperations(string leaves) {
+
+	}
+
+	void sortColors(vector<int>& nums) {
+		int p0 = 0, cur = 0;
+		int p2 = nums.size() - 1;
+		while (cur <= p2) {
+			if (nums[cur] == 0) {
+				swap(nums[cur++], nums[p0++]);
+			}
+			else if (nums[cur] == 2) {
+				swap(nums[cur], nums[p2--]);
+			}
+			else {
+				cur++;
+			}
+		}
+	}
+	                                                                                  
+	bool canJump(vector<int>& nums) {
+		int n = nums.size();
+		int right = 0;
+		for (int i = 0; i < n; ++i) {
+			if (i <= right) {
+				right = max(right, i + nums[i]);
+				if (right >= n - 1)
+					return true;
+			}
+		}
+		return false;
+	}
+
+	int jump(vector<int>& nums) {
+		int maxPos = 0, n = nums.size(), end = 0, step = 0;
+		for (int i = 0; i < n - 1; ++i) {
+			if (maxPos >= i) {
+				maxPos = max(maxPos, i + nums[i]);
+				if (i == end) {
+					end = maxPos;
+					++step;
+				}
+			}
+		}
+		return step;
+	}
+
+	int minAddToMakeValid(string S) {
+		stack<char> stk;
+		for (auto c : S) {
+			if (c == '(') {
+				stk.push(c);
+			}
+			else {
+				if (stk.empty()||stk.top()!='(') {
+					stk.push(c);
+				}
+				else {
+					stk.pop();
+				}
+			}
+		}
+		return stk.size();
+	}
+
+	int longestSubstring(string s, int k) {
+		unordered_map<char, int> ch;
+		for (auto c : s) {
+			++ch[c];
+		}
+		vector<int> split;
+		for (auto i = 0; i < s.size(); ++i) {
+			if (ch[s[i]] < k)
+				split.push_back(i);
+		}
+		if (split.size() == 0)
+			return s.length();
+		int ans = 0, left = 0;
+		split.push_back(s.length());
+		for (auto i = 0; i < split.size(); ++i) {
+			int len = split[i] - left;
+			if (len > ans)
+				ans = max(ans, longestSubstring(s.substr(left, len), k));
+			left = split[i] + 1;
+		}
+		return ans;
+	}
+
+	vector<TreeNode*> generateTrees(int n) {
+		vector<TreeNode*> ans;
+		if (n == 0)
+			return ans;
+		return generateTreesHelp(1, n);
+	}
+
+	vector<TreeNode*> generateTreesHelp(int start, int end) {
+		vector<TreeNode*> ans;
+		if (start > end) {
+			ans.emplace_back(nullptr);
+			return ans;
+		}
+		if (start == end) {
+			TreeNode* root = new TreeNode(start);
+			ans.emplace_back(root);
+			return ans;
+		}
+		for (auto i = start; i <= end; ++i) {
+			vector<TreeNode*> left = generateTreesHelp(start, i - 1);
+			vector<TreeNode*> right = generateTreesHelp(i + 1, end);
+			for (auto l : left) {
+				for (auto r : right) {
+					TreeNode* root = new TreeNode(i);
+					root->left = l;
+					root->right = r;
+					ans.emplace_back(root);
+				}
+			}
+		}
+		return ans;
+	}
 };
