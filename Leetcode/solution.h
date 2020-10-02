@@ -6,6 +6,8 @@
 #include <list>
 #include <queue>
 #include <stack>
+#include <algorithm>
+#include <numeric>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -789,5 +791,74 @@ class Solution {
 			}
 		}
 		return ans;
+	}
+
+	int numJewelsInStones(string J, string S) {
+		int res = 0;
+		for (auto c : S) {
+			if (J.find(c)!=J.npos) {
+				res++;
+			}
+		}
+		return res;
+	}
+
+	int maxScoreSightseeingPair(vector<int>& A) {
+		int ans = 0, mx = A[0] + 0;
+		for (int j = 1; j < A.size(); ++j) {
+			ans = max(ans, mx + A[j] - j);
+			mx = max(mx, A[j] + j);
+		}
+		return ans;
+	}
+
+	int maxSatisfied(vector<int>& customers, vector<int>& grumpy, int X) {
+		int res = 0;
+		for (int i = 0; i < customers.size(); ++i) {
+			if (grumpy[i] == 0) {
+				res += customers[i];
+				customers[i] = 0;
+			}
+		}
+		int sum = accumulate(customers.begin(), customers.begin() + X, 0);
+		int tmp = sum;
+		for (int i = 1; i < customers.size() - X + 1; ++i) {
+			tmp = tmp + customers[i + X - 1] - customers[i - 1];
+			sum = max(sum, tmp);
+		}
+		return sum + res;
+	}
+
+	int movingCount(int m, int n, int k) {
+
+	}
+
+	vector<int> smallestK(vector<int>& arr, int k) {
+		vector<int> ans;
+		priority_queue<int> q;
+		for (int a : arr) {
+			q.push(a);
+			if (q.size() > k)
+				q.pop();
+		}
+		while (!q.empty()) {
+			ans.push_back(q.top());
+			q.pop();
+		}
+		return ans;
+	}
+
+	int numOfSubarrays(vector<int>& arr, int k, int threshold) {
+		int res = 0;
+		int sum = accumulate(arr.cbegin(), arr.cbegin() + k, 0);
+		int tar = threshold * k;
+		if (sum >= tar)
+			res++;
+		for (int i = 1; i < arr.size() - k + 1; ++i) {
+			sum = sum + arr[i + k - 1] - arr[i - 1];
+			if (sum > tar)
+				res++;
+		}
+		return res;
 	}
 };
