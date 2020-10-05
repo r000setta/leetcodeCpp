@@ -10,6 +10,7 @@
 #include <numeric>
 #include <unordered_map>
 #include <unordered_set>
+#include <ctime>
 
 using namespace std;
 
@@ -586,7 +587,7 @@ class Solution {
 		return fmin(dp[len - 1][0], fmin(dp[len - 1][1], dp[len - 1][2]));
 	}
 
-	int balancedString(string s) {
+	/*int balancedString(string s) {
 		vector<char> chars{ 'Q', 'W', 'E', 'R' };
 		unordered_map<char, int> cnt;
 		for (char ch : s)
@@ -608,7 +609,7 @@ class Solution {
 
 			}z
 		}
-	}
+	}*/
 
 	bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
 		vector<vector<int>> p{ p1,p2,p3,p4 };
@@ -860,5 +861,289 @@ class Solution {
 				res++;
 		}
 		return res;
+	}
+
+	int numSquares(int n) {
+		vector<int> dp(n + 1);
+		for (int i = 1; i <= n; ++i) {
+			dp[i] = i;
+			for (int j = 1; i - j * j >= 0; ++j) {
+				dp[i] = min(dp[i], dp[i - j * j] + 1);
+			}
+		}
+		return dp[n];
+	}
+
+	int coinChange(vector<int>& coins, int amount) {
+		vector<int> dp(amount + 1, amount + 1);
+		int res = amount + 1;
+		for (int i = 0; i <= amount; i++) {
+			for (int j = 0; j < coins.size(); ++j) {
+				if (i >= coins[j]) {
+					dp[i] = min(dp[i], dp[i - coins[j]] + 1);
+				}
+			}
+		}
+		return dp[amount] > amount ? -1 : dp[amount];
+	}
+
+	vector<int> twoSum(vector<int>& nums, int target) {
+		map<int, int> tmp;
+		for (int i = 0; i < nums.size(); ++i) {
+			int x = nums[i];
+			int y = target - nums[i];
+			auto iter = tmp.find(y);
+			if (iter != tmp.end()) {
+				return vector<int>{i, iter->second };
+			}
+			else {
+				tmp.insert(pair<int, int>(x, i));
+			}
+		}
+		return vector<int>();
+	}
+
+	int maxUncrossedLines(vector<int>& A, vector<int>& B) {
+		int l1 = A.size(), l2 = B.size();
+		vector<vector<int>> dp(l1 + 1, vector<int>(l2 + 1));
+		for (int i = 1; i <= l1; i++) {
+			for (int j = 1; j <= l2; ++j) {
+				if (A[i - 1] == B[j - 1]) {
+					dp[i][j] = dp[i - 1][j - 1] + 1;
+				}
+				else {
+					dp[i][j] = max(dp[i][j - 1], dp[i - 1][j]);
+				}
+			}
+		}
+		return dp[l1][l2];
+	}
+
+	int longestCommonSubsequence(string text1, string text2) {
+		int l1 = text1.size(), l2 = text2.size();
+		vector<vector<int>> dp(l1+1, vector<int>(l2+1, 0));
+		for (int i = 1; i <= l1; ++i) {
+			for (int j = 1; j <= l2; ++j) {
+				if (text1[i-1] == text2[j-1]) {
+					dp[i][j] = dp[i - 1][j - 1] + 1;
+				}
+				else {
+					dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+				}
+			}
+		}
+		return dp[l1][l2];
+	}
+
+	int findLength(vector<int>& A, vector<int>& B) {
+		int l1 = A.size(), l2 = B.size();
+		int ans = 0;
+		vector<vector<int>> dp(l1 + 1, vector<int>(l2 + 1, 0));
+		for (int i = l1 - 1; i >= 0; i--) {
+			for (int j = l2 - 1; j >= 0; j--) {
+				dp[i][j] = A[i] == B[j] ? dp[i + 1][j + 1] + 1 : 0;
+				ans = max(dp[i][j], ans);
+			}
+		}
+		return ans;
+	}
+
+	string minRemoveToMakeValid(string s) {
+		stack<int> stk;
+		vector<bool> invalid(s.size());
+		string res;
+		for (int i = 0; i < s.size(); ++i) {
+			if (s[i] == '(') {
+				stk.push(i);
+				invalid[i] = true;
+			}
+			if (s[i] == ')') {
+				if (stk.empty()) {
+					invalid[i] = true;
+				}
+				else {
+					invalid[stk.top()] = false;
+					stk.pop();
+				}
+			}
+		}
+		for (int i = 0; i < invalid.size(); ++i) {
+			if (!invalid[i]) {
+				res += s[i];
+			}
+		}
+		return res;
+	}
+
+	vector<int> getLeastNumbers(vector<int>& arr, int k) {
+		vector<int> res;
+		priority_queue<int> heap;
+		for (const auto& a : arr) {
+			heap.push(a);
+			if (heap.size() > k) {
+				heap.pop();
+			}
+		}
+		while (!heap.empty()) {
+			res.push_back(heap.top());
+			heap.pop();
+		}
+		return res;
+	}
+
+	ListNode* getIntersectionNode(ListNode* headA, ListNode* headB) {
+		ListNode* n1 = headA;
+		ListNode* n2 = headB;
+		while (n1 != n2) {
+			n1 = n1 == nullptr ? headB : n1->next;
+			n2 = n2 == nullptr ? headA : n2->next;
+		}
+		return n1;
+	}
+
+	ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+		ListNode* res = new ListNode(0);
+		ListNode* tmp = res;
+		int carry = 0;
+		while (l1 != nullptr || l2 != nullptr) {
+			int x = l1 == nullptr ? 0 : l1->val;
+			int y = l2 == nullptr ? 0 : l2->val;
+			int sum = x + y + carry;
+			carry = sum / 10;
+			sum = sum % 10;
+			tmp->next = new ListNode(sum);
+			tmp = tmp->next;
+			if (l1 != nullptr) l1 = l1->next;
+			if (l2 != nullptr) l2 = l2->next;
+		}
+		if (carry) tmp->next = new ListNode(carry);
+		return res->next;
+	}
+
+	bool verifyPostorder(vector<int>& postorder) {
+		return verifyPostorderHelp(postorder, 0, postorder.size() - 1);
+	}
+
+	bool verifyPostorderHelp(vector<int>& vec, int l, int r) {
+		if (l >= r) return true;
+		int p = l;
+		while (vec[p] < vec[r]) p++;
+		int m = p;
+		while (vec[p] > vec[r]) p++;
+		return p == r && verifyPostorderHelp(vec, l, m - 1) && verifyPostorderHelp(vec, m, r - 1);
+	}
+	
+	int preIdx = 0;
+	TreeNode* buildTree2(vector<int>& preorder, vector<int>& inorder) {
+		map<int, int> idxMap;
+		for (int i = 0; i < inorder.size(); ++i) {
+			idxMap[inorder[i]] = i;
+		}
+		return buildTree2Help(preorder, idxMap, preIdx, inorder.size() - 1);
+	}
+
+	TreeNode* buildTree2Help(vector<int>& preorder, map<int, int>& idxMap, int left, int right) {
+		if (left > right) return nullptr;
+		int val = preorder[preIdx++];
+		TreeNode* root = new TreeNode(val);
+		int inIdx = idxMap[val];
+		root->left = buildTree2Help(preorder, idxMap, left, inIdx - 1);
+		root->right = buildTree2Help(preorder, idxMap, inIdx + 1, right);
+		return root;
+	}
+
+	int maxRotateFunction(vector<int>& A) {
+
+	}
+
+	vector<vector<int>> fourSum(vector<int>& nums, int target) {
+		sort(nums.begin(), nums.end());
+		vector<vector<int>> res;
+		if (nums.size() < 4) return res;
+		int size = nums.size();
+		for (int a = 0; a < size; ++a) {
+			if (a > 0 && nums[a] == nums[a - 1]) continue;
+			for (int b = a + 1; b <= size - 3; ++b) {
+				if (b > a + 1 && nums[b] == nums[b - 1]) continue;
+				int c = b + 1, d = size - 1;
+				while (c < d) {
+					if (nums[a] + nums[b] + nums[c] + nums[d] < target) {
+						c++;
+					}
+					else if (nums[a] + nums[b] + nums[c] + nums[d] > target) {
+						d--;
+					}
+					else {
+						res.push_back({ nums[a],nums[b],nums[c],nums[d] });
+						while (c < d && nums[c + 1] == nums[c]) c++;
+						while (c < d && nums[d - 1] == nums[d]) d--;
+						c++;
+						d--;
+					}
+				}
+			}
+		}
+		return res;
+	}
+
+	vector<vector<int>> threeSum(vector<int>& nums) {
+		vector<vector<int>> ans;
+		int len = nums.size();
+		if (len < 3) return ans;
+		sort(nums.begin(), nums.end());
+		for (int i = 0; i < len - 1; ++i) {
+			if (nums[i] > 0) break;
+			if (i > 0 && nums[i] == nums[i - 1]) continue;
+			int l = i + 1;
+			int r = len - 1;
+			while (l < r) {
+				int sum = nums[i] + nums[l] + nums[r];
+				if (sum == 0) {
+					ans.push_back({ nums[i],nums[l],nums[r] });
+					while (l < r && nums[l] == nums[l + 1]) l++;
+					while (l < r && nums[r] == nums[r - 1]) r--;
+					l++;
+					r--;
+				}
+				else if (sum < 0) l++;
+				else r--;
+			}
+		}
+		return ans;
+	}
+
+	int quickSelect(vector<int>& a, int l, int r, int index) {
+		int q = partition(a, l, r);
+		if (q == index)
+			return a[q];
+		else
+			return q < index ? quickSelect(a, q + 1, r, index) : quickSelect(a, l, q - 1, index);
+	}
+
+	int partition(vector<int>& a, int l, int r) {
+		int x = a[r], i = l - 1;
+		for (int j = l; j < r; ++j) {
+			if (a[j] < x) swap(a[++i], a[j]);
+		}
+		swap(a[i + 1], a[r]);
+		return i + 1;
+	}
+
+	int findKthLargest(vector<int>& nums, int k) {
+		random_shuffle(nums.begin(), nums.end());
+		return quickSelect(nums, 0, nums.size() - 1, nums.size() - k);
+	}
+
+	int missingElement(vector<int>& nums, int k) {
+		for (int i = 1; i < nums.size(); ++i) {
+			int x = nums[i] - nums[i - 1] - 1;
+			if (x >= k) {
+				return nums[i - 1] + k;
+			}
+			else {
+				k -= x;
+			}
+		}
+		return  nums[nums.size() - 1] + k;
 	}
 };
