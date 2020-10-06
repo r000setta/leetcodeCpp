@@ -1146,4 +1146,147 @@ class Solution {
 		}
 		return  nums[nums.size() - 1] + k;
 	}
+
+	vector<int> ans;
+	vector<int> cnt;
+	vector<vector<int>> graph;
+	int n = 0;
+
+	void dfs1(int child, int parent) {
+		for (int i = 0; i < graph[child].size(); ++i) {
+			if (graph[child][i] != parent) {
+				dfs1(graph[child][i], child);
+				cnt[child] += cnt[graph[child][i]];
+				ans[child] += ans[graph[child][i]] + cnt[graph[child][i]];
+			}
+		}
+	}
+
+	void dfs2(int child, int parent) {
+		for (int i = 0; i < graph[child].size(); ++i) {
+			if (parent != graph[child][i]) {
+				ans[graph[child][i]] = ans[child] - cnt[graph[child][i]] + n - cnt[graph[child][i]];
+				dfs2(graph[child][i], child);
+			}
+		}
+	}
+
+	vector<int> sumOfDistancesInTree(int N, vector<vector<int>>& edges) {
+		if (N == 0 || edges.empty())
+			return { 0 };
+		n = N;
+		graph.resize(n);
+		ans.resize(n);
+		cnt.resize(n);
+		for (auto& c : cnt) {
+			c = 1;
+		}
+		for (auto& e : edges) {
+			graph[e[0]].push_back(e[1]);
+			graph[e[1]].push_back(e[0]);
+		}
+		dfs1(0, -1);
+		dfs2(0, -1);
+		return ans;
+	}
+
+	int pondSizesDir[8][2] = { {1,0},{1,1},{0,1},{-1,1},{-1,0},{-1,-1},{0,-1},{1,-1} };
+
+	vector<int> pondSizes(vector<vector<int>>& land) {
+		int m = land.size();
+		int n = land[0].size();
+		vector<vector<int>> visited(m, vector<int>(n));
+		vector<int> ans;
+		for (int i = 0; i < m; ++i) {
+			for (int j = 0; j < n; ++j) {
+				if (!land[i][j] && !visited[i][j])
+					ans.push_back(pondSizesDFS(land, i, j, visited));
+			}
+		}
+		return ans;
+	}
+
+	int pondSizesDFS(vector<vector<int>>& land, int row, int col, vector<vector<int>>& visited) {
+		int m = land.size();
+		int n = land[0].size();
+		if (row < 0 || row >= m || col < 0 || col >= n || visited[row][col] || land[row][col] != 0)
+			return 0;
+		visited[row][col] = 1;
+		int cnt = 1;
+		for (int i = 0; i < 8; ++i) {
+			int newR = row + pondSizesDir[i][0];
+			int newC = col + pondSizesDir[i][1];
+			cnt += pondSizesDFS(land, newR, newC, visited);
+		}
+		return cnt;
+	}
+
+	vector<int> flipMatchVoyage(TreeNode* root, vector<int>& voyage) {
+
+	}
+
+	int sumNumbers(TreeNode* root) {
+		return sumNumbersDfs(root, 0);
+    }
+
+	int sumNumbersDfs(TreeNode* root, int sum) {
+		if (root == nullptr) return 0;
+		sum = sum * 10 + root->val;
+		if (root->right == nullptr && root->left == nullptr) return sum;
+		return sumNumbersDfs(root->left, sum) + sumNumbersDfs(root->right, sum);
+	}
+
+	int updateBoardDir[8][2] = { {0,1},{1,0},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1} };
+	vector<vector<char>> updateBoard(vector<vector<char>>& board, vector<int>& click) {
+		int x = click[0], y = click[1];
+		if (board[x][y] == 'M')
+			board[x][y] = 'X';
+		else
+			updateBoardDFS(board, x, y);
+		return board;
+	}
+
+	void updateBoardDFS(vector<vector<char>>& board, int x, int y) {
+		int cnt = 0;
+		for (int i = 0; i < 8; ++i) {
+			int newX = x + updateBoardDir[i][0];
+			int newY = y + updateBoardDir[i][1];
+			if (newX < 0 || newX >= board.size() || newY < 0 || newY >= board[0].size()) {
+				continue;
+			}
+			cnt += board[newX][newY] == 'M';
+		}
+		if (cnt > 0) {
+			board[x][y] = cnt + '0';
+		}
+		else {
+			board[x][y] = 'B';
+			for (int i = 0; i < 8; ++i) {
+				int newX = x + updateBoardDir[i][0];
+				int newY = y + updateBoardDir[i][1];
+				if (newX < 0 || newX >= board.size() || newY < 0 || newY >= board[0].size()||board[newX][newY]!='E') {
+					continue;
+				}
+				updateBoardDFS(board, newX, newY);
+			}
+		}
+	}
+
+	int pathSum2Res = 0;
+	int pathSum2(TreeNode* root, int sum) {
+		if (root == nullptr) return pathSum2Res;
+		pathSum2DFS(root, sum);
+		pathSum2(root->left, sum);
+		pathSum2(root->right, sum);
+		return pathSum2Res;
+	}
+
+	void pathSum2DFS(TreeNode* root, int sum) {
+		if (root == nullptr) return;
+		sum -= root->val;
+		if (sum == 0) pathSum2Res++;
+		pathSum2DFS(root->left, sum);
+		pathSum2DFS(root->right, sum);
+		sum += root->val;
+	}
 };
