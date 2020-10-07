@@ -1289,4 +1289,118 @@ class Solution {
 		pathSum2DFS(root->right, sum);
 		sum += root->val;
 	}
+
+	void sortColors2(vector<int>& nums) {
+		int l = 0, r = nums.size() - 1;
+		for (int i = 0; i <= r; i++) {
+			while (i <= r && nums[i] == 2) {
+				swap(nums[i], nums[r]);
+				r--;
+			}
+			if (nums[i] == 0) {
+				swap(nums[i], nums[l]);
+				l++;
+			}
+		}
+	}
+
+	map<vector<int>, int> shopmemo;
+	int shoppingOffers(vector<int>& price, vector<vector<int>>& special, vector<int>& needs) {
+		int N = price.size();
+		int res = inner_product(price.begin(), price.end(), needs.begin(), 0);
+		if (shopmemo.count(needs)) {
+			return shopmemo[needs];
+		}
+		for (const auto& offer : special) {
+			auto r = shoppingOffersHelp(offer, needs);
+			if (!r.empty())
+				res = min(res, offer.back() + shoppingOffers(price, special, r));
+		}
+		shopmemo[needs] = res;
+		return shopmemo[needs];
+	}
+
+	vector<int> shoppingOffersHelp(const vector<int>& offer, const vector<int>& needs) {
+		vector<int> remain(needs.size(), 0);
+		for (int i = 0; i < needs.size(); ++i) {
+			if (offer[i] > needs[i]) return {};
+			remain[i] = needs[i] - offer[i];
+		}
+		return remain;
+	}
+
+	int shoppingOffers2(vector<int>& price, vector<vector<int>>& special, vector<int>& needs) {
+		int N = price.size();
+		int res = inner_product(price.begin(), price.end(), needs.begin(), 0);
+		for (const auto& offer : special) {
+			bool isValid = true;
+			for (int j = 0; j < N; j++) {
+				if (needs[j] < offer[j]) {
+					isValid = false;
+				}
+			}
+			if (isValid) {
+				for (int j = 0; j < N; ++j) {
+					needs[j] -= offer[j];
+				}
+				res = min(res, offer.back() + shoppingOffers2(price, special, needs));
+				for (int j = 0; j < N; ++j) {
+					needs[j] += offer[j];
+				}
+			}
+		}
+		return res;
+	}
+
+	int updateMatrixDir[4][2] = { {-1,0},{1,0},{0,1},{0,-1} };
+
+	vector<vector<int>> updateMatrix(vector<vector<int>>& matrix) {
+		queue<pair<int, int>> q;
+		int m = matrix.size(), n = matrix[0].size();
+		for (int i = 0; i < m; ++i) {
+			for (int j = 0; j < n; ++j) {
+				if (matrix[i][j] == 0)
+					q.push({ i,j });
+				else
+					matrix[i][j] = -1;
+			}
+		}
+
+		while (!q.empty()) {
+			auto point = q.front();
+			q.pop();
+			int x = point.first, y = point.second;
+			for (int i = 0; i < 4; ++i) {
+				int newX = x + updateMatrixDir[i][0];
+				int newY = y + updateMatrixDir[i][1];
+				if (newX < 0 || newX >= m || newY < 0 || newY >= n || matrix[newX][newY] != -1) continue;
+				matrix[newX][newY] = matrix[x][y] + 1;
+				q.push({ newX,newY });
+			}
+		}
+		return matrix;
+	}
+
+	int getNum(TreeNode* root) {
+		if (!root) return 0;
+		int l = getNum(root->left);
+		int r = getNum(root->right);
+		return l + r + 1;
+	}
+
+	bool btreeGameWinningMove(TreeNode* root, int n, int x) {
+		return btreeGameWinningMoveHelper(root, n, x);
+	}
+
+	bool btreeGameWinningMoveHelper(TreeNode* root, int n, int x) {
+		if (!root) return false;
+		if (root->val == x) {
+			int l = getNum(root->left);
+			int r = getNum(root->right);
+			int other = n - 1 - r - l;
+			if (other > l + r + 1 || l > other + r + 1 || r > other + l + 1) return true;
+			else return false;
+		}
+		return btreeGameWinningMoveHelper(root->left, n, x) || btreeGameWinningMoveHelper(root->right, n, x);
+	}
 };
