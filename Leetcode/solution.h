@@ -1291,15 +1291,16 @@ class Solution {
 	}
 
 	void sortColors2(vector<int>& nums) {
-		int l = 0, r = nums.size() - 1;
-		for (int i = 0; i <= r; i++) {
-			while (i <= r && nums[i] == 2) {
-				swap(nums[i], nums[r]);
-				r--;
+		int p0 = 0, cur = 0, p2 = nums.size() - 1;
+		while (cur <= p2) {
+			if (nums[cur] == 0) {
+				swap(nums[cur++], nums[p0++]);
 			}
-			if (nums[i] == 0) {
-				swap(nums[i], nums[l]);
-				l++;
+			else if (nums[cur] == 2) {
+				swap(nums[cur], nums[p2--]);
+			}
+			else {
+				cur++;
 			}
 		}
 	}
@@ -1402,5 +1403,52 @@ class Solution {
 			else return false;
 		}
 		return btreeGameWinningMoveHelper(root->left, n, x) || btreeGameWinningMoveHelper(root->right, n, x);
+	}
+
+	class isBipartiteUnion {
+	public:
+		vector<int> roots;
+		isBipartiteUnion(int n) {
+			roots.resize(n);
+			for (int i = 0; i < n; ++i) {
+				roots[i] = i;
+			}
+		}
+
+		int find(int i) {
+			if (roots[i] == i) return i;
+			return roots[i] = find(roots[i]);
+		}
+
+		bool isConnect(int p, int q) {
+			return find(q) == find(p);
+		}
+
+		void Union(int p, int q) {
+			roots[find(p)] = find(q);
+		}
+	};
+
+	bool isBipartite(vector<vector<int>>& graph) {
+		isBipartiteUnion uf = isBipartiteUnion(graph.size());
+		for (int i = 0; i < graph.size(); ++i) {
+			auto adjs = graph[i];
+			for (int w : adjs) {
+				if (uf.isConnect(i, w)) return false;
+				uf.Union(adjs[0], w);
+			}
+		}
+		return true;
+	}
+
+	void reverseString(vector<char>& s) {
+		int l = 0, right = s.size() - 1;
+		while (l < right) {
+			swap(s[l++], s[right--]);
+		}
+	}
+
+	bool exist(vector<vector<char>>& board, string word) {
+
 	}
 };
