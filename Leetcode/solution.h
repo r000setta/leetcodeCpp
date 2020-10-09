@@ -1448,7 +1448,112 @@ class Solution {
 		}
 	}
 
-	bool exist(vector<vector<char>>& board, string word) {
+	bool hasCycle(ListNode* head) {
+		if (head == nullptr || head->next == nullptr) return false;
+		auto* fast = head->next, * slow = head;
+		while (fast != slow) {
+			if (fast == nullptr || fast->next == nullptr) return false;
+			fast = fast->next->next;
+			slow = slow->next;
+		}
+		return true;
+	}
 
+	vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+		vector<vector<int>> ans;
+		vector<int> path;
+		combinationSumBP(candidates, target, ans, path,0);
+		return ans;
+	}
+
+	void combinationSumBP(vector<int>& candidates, int target, vector<vector<int>>& ans, vector<int>& path,int cur) {
+		if (target == 0) {
+			ans.push_back(path);
+			return;
+		}
+		for (int i = cur; i < candidates.size(); ++i) {
+			int tmp = candidates[i];
+			if (tmp <= target) {
+				path.push_back(tmp);
+				combinationSumBP(candidates, target - tmp, ans, path, i);
+				path.pop_back();
+			}
+		}
+	}
+
+	vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
+		sort(candidates.begin(), candidates.end());
+		vector<bool> vec(candidates.size(), false);
+		vector<vector<int>> ans;
+		vector<int> path;
+		combinationSumBP2(candidates, target, ans, path, 0);
+		return ans;
+	}
+
+	void combinationSumBP2(vector<int>& candidates, int target, vector<vector<int>>& ans, vector<int>& path, int cur) {
+		if (target == 0) {
+			ans.push_back(path);
+			return;
+		}
+		for (int i = cur; i < candidates.size(); ++i) {
+			int tmp = candidates[i];
+			if (i > cur && candidates[i] == candidates[i - 1]) continue;
+			if (tmp <= target) {
+				path.push_back(tmp);
+				combinationSumBP2(candidates, target - tmp, ans, path, i+1);
+				path.pop_back();
+			}
+		}
+	}
+
+	void solveSudoku(vector<vector<char>>& board) {
+		vector<vector<int>> rowUsed( 9, vector<int>(10, 0));
+		vector<vector<int>> colUsed(9, vector<int>(10, 0));
+		vector<vector<vector<int>>> boxUsed(3, vector<vector<int>>(3,vector<int>(10,0)));
+
+		for (int row = 0; row < board.size(); ++row) {
+			for (int col = 0; col < board[0].size(); ++col) {
+				int num = board[row][col] - '0';
+				if (1 <= num && num <= 9) {
+					rowUsed[row][num] = 1;
+					colUsed[col][num] = 1;
+					boxUsed[row / 3][col / 3][num] = 1;
+				}
+			}
+		}
+		solveSudokuBP(board, 0, 0, rowUsed, colUsed, boxUsed);
+	}
+
+	bool flag = false;
+	void solveSudokuBP(vector<vector<char>>& board,int row,int col, vector<vector<int>>& rowUsed, vector<vector<int>>& colUsed, vector<vector<vector<int>>>& boxUsed) {
+		if (col == board[0].size()) {
+			col = 0;
+			row++;
+			if (row == board.size()) {
+				flag = true;
+				return;
+			}
+		}
+		if (board[row][col] == '.') {
+			for (int num = 1; num < 9; num++) {
+				bool canUse = !rowUsed[row][num] && !colUsed[col][num] && !boxUsed[row / 3][col / 3][num];
+				if (canUse) {
+					rowUsed[row][num] = 1;
+					colUsed[col][num] = 1;
+					boxUsed[row / 3][col / 3][num] = 1;
+					board[row][col] = (char)('0' + num);
+					solveSudokuBP(board, row, col + 1, rowUsed, colUsed, boxUsed);
+					if (flag == 1) return;
+					board[row][col] = '.';
+					rowUsed[row][num] = 0;
+					colUsed[col][num] = 0;
+					boxUsed[row / 3][col / 3][num] = 0;
+				}
+			}
+		}
+		else {
+			return solveSudokuBP(board, row, col + 1, rowUsed, colUsed, boxUsed);
+		}
+		return;
 	}
 };
