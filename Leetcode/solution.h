@@ -1556,4 +1556,73 @@ class Solution {
 		}
 		return;
 	}
+
+	ListNode* detectCycle(ListNode* head) {
+		ListNode* slow = head, * fast = head;
+		while (true) {
+			if (fast == nullptr || fast->next == nullptr) return nullptr;
+			fast = fast->next->next;
+			slow = slow->next;
+			if (slow == fast) break;
+		}
+		if (slow == nullptr) return nullptr;
+		fast = head;
+		while (fast != slow) {
+			slow = slow->next;
+			fast = fast->next;
+		}
+		return fast;
+	}
+
+	int countNumbersWithUniqueDigits(int n) {
+		if (n == 0) return 1;
+		if (n == 1) return 10;
+		vector<int> dp(n + 1);
+		dp[0] = 1;
+		dp[1] = 10;
+		for (int i = 2; i <= n; ++i) {
+			int res = 9, k = 9;
+			for (int j = 1; j < i; ++j) res *= k--;
+			dp[i] = res + dp[i - 1];
+		}
+		return dp[n];
+	}
+
+	vector<vector<int>> permuteUnique(vector<int>& nums) {
+		vector<vector<int>> ans;
+		vector<int> path;
+		vector<bool> visit(nums.size());
+		sort(nums.begin(), nums.end());
+		permuteUniqueBP(nums, ans, path, visit);
+		return ans;
+	}
+
+	void permuteUniqueBP(vector<int>& nums, vector<vector<int>>& ans, vector<int>& path, vector<bool>& visit) {
+		if (path.size() == nums.size()) {
+			ans.push_back(path);
+			return;
+		}
+		for (int i = 0; i < nums.size(); ++i) {
+			if (visit[i]) continue;
+			if (i > 0 && nums[i] == nums[i - 1] && !visit[i - 1]) continue;
+			path.push_back(nums[i]);
+			visit[i] = true;
+			permuteUniqueBP(nums, ans, path, visit);
+			visit[i] = false;
+			path.pop_back();
+		}
+	}
+
+	vector<int> sequentialDigits(int low, int high) {
+		vector<int> ans;
+		for (int i = 1; i <= 9; i++) {
+			int sum = i;
+			for (int j = i + 1; j <= 9; j++) {
+				sum = sum * 10 + j;
+				if (sum >= low && sum <= high) ans.push_back(sum);
+			}
+		}
+		sort(ans.begin(), ans.end());
+		return ans;
+	}
 };
