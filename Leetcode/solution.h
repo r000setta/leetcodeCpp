@@ -1627,35 +1627,89 @@ class Solution {
 	}
 
 	bool canPartition(vector<int>& nums) {
+		int sum = 0;
+		for (int n : nums) sum += n;
+		if (sum % 2 != 0) return false;
 		int n = nums.size();
-		if (n < 2) {
-			return false;
-		}
-		int sum = accumulate(nums.begin(), nums.end(), 0);
-		int maxNum = *max_element(nums.begin(), nums.end());
-		if (sum & 1) {
-			return false;
-		}
-		int target = sum / 2;
-		if (maxNum > target) {
-			return false;
-		}
-		vector<vector<int>> dp(n, vector<int>(target + 1, 0));
-		for (int i = 0; i < n; i++) {
+		sum /= 2;
+		vector<vector<bool>> dp(n + 1, vector<bool>(sum + 1, false));
+		for (int i = 0; i <= n; i++) {
 			dp[i][0] = true;
 		}
-		dp[0][nums[0]] = true;
-		for (int i = 1; i < n; i++) {
-			int num = nums[i];
-			for (int j = 1; j <= target; j++) {
-				if (j >= num) {
-					dp[i][j] = dp[i - 1][j] | dp[i - 1][j - num];
+		for (int i = 1; i <= n; ++i) {
+			for (int j = 1; j <= sum; ++j) {
+				if (j - nums[i - 1] < 0) {
+					dp[i][j] = dp[i - 1][j];
 				}
 				else {
-					dp[i][j] = dp[i - 1][j];
+					dp[i][j] = dp[i - 1][j] | dp[i - 1][j - nums[i - 1]];
 				}
 			}
 		}
-		return dp[n - 1][target];
+		return dp[n][sum];
+	}
+
+	int getMinimumDifference(TreeNode* root) {
+		vector<int> path;
+		getMinimumDifferenceHelp(root, path);
+		int ans = INT_MAX;
+		for (int i = 1; i < path.size(); ++i) {
+			int t = abs(path[i] - path[i - 1]);
+			ans = min(ans, t);
+		}
+		return ans;
+	}
+
+	void getMinimumDifferenceHelp(TreeNode* root, vector<int>& ans) {
+		if (root == nullptr) return;
+		getMinimumDifferenceHelp(root->left, ans);
+		ans.push_back(root->val);
+		getMinimumDifferenceHelp(root->right, ans);
+	}
+
+	int findMaxForm(vector<string>& strs, int m, int n) {
+		int len = strs.size();
+		vector<vector<vector<int>>> dp(len + 1, vector<vector<int>>(m + 1, vector<int>(n + 1)));
+		for (int k = 1; k <= len; ++k) {
+			int w0 = 0, w1 = 0;
+			for (char c : strs[k-1]) {
+				if (c == '0') w0++;
+				else w1++;
+			}
+			for (int i = 0; i <= m; ++i) {
+				for (int j = 0; j <= n; ++j) {
+					if (i >= w0 && j >= w1) {
+						dp[k][i][j] = max(dp[k][i][j], dp[k - 1][i - w0][j - w1] + 1);
+					}
+					dp[k][i][j] = max(dp[k][i][j], dp[k - 1][i][j]);
+				}
+			}
+		}
+		return dp[len][m][n];
+	}
+
+	int findTargetSumWays(vector<int>& nums, int S) {
+		int sum = 0;
+		for (int n : nums) sum += n;
+		if (abs(S) > abs(sum)) return 0;
+		int len = nums.size();
+		int t = sum * 2 + 1;
+		vector<vector<int>> dp(len, vector<int>(t));
+		if (nums[0] == 0) {
+			dp[0][sum] == 2;
+		}
+		else {
+			dp[0][sum + nums[0]] = 1;
+			dp[0][sum - nums[0]] = 1;
+		}
+
+		for (int i = 1; i < len; ++i) {
+			for (int j = 0; j < t; ++j) {
+				int l = (j - nums[i]) >= 0 ? j - nums[i] : 0;
+				int r = (j + nums[i]) < t ? j + nums[i] : 0;
+				dp[i][j] = dp[i - 1][l] + dp[i - 1][r];
+			}
+		}
+		return dp[len - 1][sum + S];
 	}
 };
