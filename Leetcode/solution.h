@@ -1712,4 +1712,113 @@ class Solution {
 		}
 		return dp[len - 1][sum + S];
 	}
+
+	ListNode* swapPairs(ListNode* head) {
+		ListNode* res = new ListNode(0);
+		res->next = head;
+		ListNode* tmp = res;
+		while (tmp->next != nullptr && tmp->next->next != nullptr) {
+			ListNode* t1 = tmp->next, * t2 = tmp->next->next;
+			tmp->next = t2;
+			t1->next = t2->next;
+			t2->next = t1;
+			tmp = t1;
+		}
+		return res->next;
+	}
+
+	int maxCoins(vector<int>& nums) {
+		if (nums.size() == 0) return 0;
+		vector<int> tmp(nums.size() + 2);
+		tmp[0] = 1;
+		for (int i = 1; i <= nums.size(); ++i) {
+			tmp[i] = nums[i - 1];
+		}
+		tmp[nums.size() + 1] = 1;
+		vector<vector<int>> memo(tmp.size(), vector<int>(tmp.size()));
+		return maxCoinsDP(tmp, 0, tmp.size() - 1, memo);
+	}
+
+	int maxCoinsDP(vector<int>& nums, int start, int end, vector<vector<int>>& memo) {
+		if (start + 1 == end) return 0;
+		if (memo[start][end] != 0) return memo[start][end];
+		int fmax = 0;
+		for (int i = start + 1; i < end; ++i) {
+			int tmp = maxCoinsDP(nums, start, i, memo) + maxCoinsDP(nums, i, end, memo) + nums[i] * nums[start] * nums[end];
+			fmax = max(tmp, fmax);
+		}
+		memo[start][end] = fmax;
+		return fmax;
+	}
+
+	ListNode* mergeKLists(vector<ListNode*>& lists) {
+		if (lists.size() == 0) return nullptr;
+		return mergeKListsHelp(lists, 0, lists.size() - 1);
+	}
+
+	ListNode* mergeKListsHelp(vector<ListNode*>& lists, int l, int r) {
+		if (l == r) return lists[l];
+		int mid = (l + r) / 2;
+		ListNode* l1 = mergeKListsHelp(lists, l, mid);
+		ListNode* l2 = mergeKListsHelp(lists, mid + 1, r);
+		return mergeTwo(l1, l2);
+	}
+
+	ListNode* mergeTwo(ListNode* l1, ListNode* l2) {
+		ListNode* res = new ListNode(0);
+		ListNode* tmp = res;
+		while (l1 != nullptr && l2 != nullptr) {
+			if (l1->val < l2->val) {
+				tmp->next = l1;
+				l1 = l1->next;
+			}
+			else {
+				tmp->next = l2;
+				l2 = l2->next;
+			}
+			tmp = tmp->next;
+		}
+		tmp->next = l2 == nullptr ? l1 : l2;
+		return res->next;
+	}
+
+	class Node {
+	public:
+		int val;
+		Node* left;
+		Node* right;
+
+		Node() {}
+
+		Node(int _val) {
+			val = _val;
+			left = NULL;
+			right = NULL;
+		}
+
+		Node(int _val, Node* _left, Node* _right) {
+			val = _val;
+			left = _left;
+			right = _right;
+		}
+	};
+
+	Node* treeToDoublyList(Node* root) {
+		if (root == nullptr) return nullptr;
+		Node* pre = nullptr, * head = nullptr;
+		treeToDoublyListHelp(root, pre, head);
+		head->left = pre;
+		pre->right = head;
+		return head;
+	}
+
+	void treeToDoublyListHelp(Node* cur, Node* pre, Node* head) {
+		if (cur == nullptr) return;
+		treeToDoublyListHelp(cur->left, pre, head);
+		if (pre != nullptr) pre->right = cur;
+		else head = cur;
+		cur->left = pre;
+		pre = cur;
+		treeToDoublyListHelp(cur->right, pre, head);
+	}
 };
