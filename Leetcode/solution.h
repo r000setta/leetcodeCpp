@@ -1821,4 +1821,65 @@ class Solution {
 		pre = cur;
 		treeToDoublyListHelp(cur->right, pre, head);
 	}
+
+	vector<string> commonChars(vector<string>& A) {
+		vector<int> mincount(26, INT_MAX);
+		vector<int> cur(26);
+		vector<string> res;
+		for (string& a : A) {
+			fill(cur.begin(), cur.end(), 0);
+			for (char c : a) {
+				cur[c-'a']++;
+			}
+			for (int i = 0; i < 26; ++i) {
+				mincount[i] = min(mincount[i], cur[i]);
+			}
+		}
+		for (int i = 0; i < 26; ++i) {
+			for (int j = 0; j < mincount[i]; ++j) {
+				res.emplace_back(1, i + 'a');
+			}
+		}
+		return res;
+	}
+
+	vector<int> maxDepthAfterSplit(string seq) {
+		vector<int> ans(seq.size());
+		int idx = 0;
+		for (char c : seq) {
+			ans[idx++] = c == '(' ? idx & 1 : ((idx + 1) & 1);
+		}
+		return ans;
+	}
+
+	int findLength(vector<int>& A, vector<int>& B) {
+		int n = A.size(), m = B.size();
+		vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));
+		int ans = 0;
+		for (int i = n - 1; i >= 0; i--) {
+			for (int j = m - 1; j >= 0; j--) {
+				dp[i][j] = A[i] == B[j] ? dp[i + 1][j + 1] + 1 : 0;
+				ans = max(ans, dp[i][j]);
+			}
+		}
+		return ans;
+	}
+
+	vector<int> intersect(vector<int>& nums1, vector<int>& nums2) {
+		unordered_map<int, int> m;
+		for (int num : nums1) {
+			++m[num];
+		}
+		vector<int> intersection;
+		for (int num : nums2) {
+			if (m.count(num)) {
+				intersection.push_back(num);
+				--m[num];
+				if (m[num] == 0) {
+					m.erase(num);
+				}
+			}
+		}
+		return intersection;
+	}
 };
