@@ -1895,4 +1895,112 @@ class Solution {
 		}
 		return root;
 	}
+
+	vector<int> partitionLabels(string S) {
+		int last = -1;
+		vector<int> res;
+		int start = 0;
+		for (int i = 0; i < S.size(); ++i) {
+			char ch = S[i];
+			last = fmax(last, S.find_last_of(ch));
+			if (i == last) {
+				res.emplace_back(last - start + 1);
+				start = i+1;
+			}
+		}
+		return res;
+	}
+
+	int singleNumber(int* A, int n) {
+		int res = 0;
+		for (int i = 0; i < n; ++i) {
+			res = res ^ A[i];
+		}
+		return res;
+	}
+
+	int candy(vector<int>& ratings) {
+		int len = ratings.size();
+		vector<int> dp(len, 1);
+		for (int i = 1; i < len; ++i) {
+			if (ratings[i] > ratings[i - 1]) {
+				dp[i] = max(dp[i], dp[i - 1] + 1);
+			}
+		}
+		int res = dp[len - 1];
+		for (int i = len - 2; i >= 0; --i) {
+			if (ratings[i] > ratings[i + 1]) {
+				dp[i] = max(dp[i], dp[i + 1] + 1);
+			}
+			res += dp[i];
+		}
+		return res;
+	}
+
+	struct UndirectedGraphNode {
+		int label;
+		vector<UndirectedGraphNode*> neighbors;
+		UndirectedGraphNode(int x) :label(x) {};
+	};
+
+	unordered_map<UndirectedGraphNode*, UndirectedGraphNode*> unMp;
+
+	UndirectedGraphNode* cloneGraph(UndirectedGraphNode* node) {
+		auto* oldNode = node;
+		cloneGraphDFS(node);
+		for (auto n : unMp) {
+			auto* first = n.first;
+			for (int i = 0; i < first->neighbors.size(); ++i) {
+				n.second->neighbors.push_back(unMp[first->neighbors[i]]);
+			}
+		}
+		return unMp[oldNode];
+	}
+
+	void cloneGraphDFS(UndirectedGraphNode* node) {
+		if (node == nullptr) return;
+		if (unMp.count(node)) {
+			return;
+		}
+		UndirectedGraphNode* copyNode = new UndirectedGraphNode(node->label);
+		unMp[node] = copyNode;
+		for (auto n : node->neighbors) {
+			cloneGraphDFS(n);
+		}
+	}
+
+	int solveDir[4][2]{ {-1,0},{0,1},{1,0},{0,-1} };
+
+	void solve(vector<vector<char>>& board) {
+		int row = board.size(), col = board[0].size();
+		if (row < 3 || col < 3) return;
+		for (int i = 0; i < col; ++i) {
+			solveHelp(board, 0, i);
+			solveHelp(board, row - 1, i);
+		}
+
+		for (int i = 1; i < row - 1; ++i) {
+			solveHelp(board, i, 0);
+			solveHelp(board, i, col - 1);
+		}
+
+		for (int i = 0; i < row; ++i) {
+			for (int j = 0; j < col; ++j) {
+				if (board[i][j] == 'O') board[i][j] = 'X';
+				if (board[i][j] == '*') board[i][j] = 'O';
+			}
+		}
+	}
+
+	void solveHelp(vector<vector<char>>& board, int x, int y) {
+		if (x < 0 || x >= board.size() || y < 0 || y >= board[0].size()) return;
+		if (board[x][y] == 'O') {
+			board[x][y] = '*';
+			for (auto dir : solveDir) {
+				int newX = x + dir[0];
+				int newY = y + dir[1];
+				solveHelp(board, newX, newY);
+			}
+		}
+	}
 };
