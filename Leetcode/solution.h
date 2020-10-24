@@ -1221,10 +1221,6 @@ class Solution {
 		return cnt;
 	}
 
-	vector<int> flipMatchVoyage(TreeNode* root, vector<int>& voyage) {
-
-	}
-
 	int sumNumbers(TreeNode* root) {
 		return sumNumbersDfs(root, 0);
     }
@@ -2002,5 +1998,212 @@ class Solution {
 				solveHelp(board, newX, newY);
 			}
 		}
+	}
+
+	ListNode* reverseList(ListNode* head) {
+		ListNode* res = new ListNode(0);
+		ListNode* tmp = head;
+		while (tmp != nullptr) {
+			ListNode* nex = tmp->next;
+			tmp->next = res->next;
+			res->next = tmp;
+			tmp = nex;
+		}
+		return res->next;
+	}
+
+	bool isPalindrome(ListNode* head) {
+		if (head == nullptr) return true;
+		ListNode* fast = head, * slow = head;
+		while (fast->next != nullptr && fast->next->next != nullptr) {
+			fast = fast->next->next;
+			slow = slow->next;
+		}
+		ListNode* endfirst = slow;
+		ListNode* p1 = head;
+		ListNode* p2 = reverseList(slow->next);
+		bool res = true;
+		while (res && p2 != nullptr) {
+			if (p1->val != p2->val) {
+				res = false;
+			}
+			p1 = p1->next;
+			p2 = p2->next;
+		}
+		endfirst->next = reverseList(p2);
+		return res;
+	}
+
+	int sumNumbers2(TreeNode* root) {
+		if (root == nullptr) return 0;
+		return sumNumbers2DFS(root, 0);
+	}
+
+	int sumNumbers2DFS(TreeNode* root, int sum) {
+		if (root == nullptr) return 0;
+		sum = sum * 10 + root->val;
+		if (root->left == nullptr && root->right == nullptr) return sum;
+		return sumNumbers2DFS(root->left, sum) + sumNumbers2DFS(root->right, sum);
+	}
+
+	TreeNode* upsideDownBinaryTree(TreeNode* root) {
+
+	}
+
+	int lengthOfLongestSubstringTwoDistinct(string s) {
+		int n = s.size();
+		if (n <= 2) return n;
+		int l = 0, r = 0;
+		int cnt = 0;
+		int ans = 2;
+		unordered_map<char, int> mp;
+		while (r < n) {
+			mp[s[r]]++;
+			if (mp[s[r]] == 1) cnt++;
+			while (cnt > 2) {
+				mp[s[l]]--;
+				if (mp[s[l]] == 0) cnt--;
+				l++;
+			}
+			ans = max(ans, r - l + 1);
+			r++;
+		}
+		return ans;
+	}
+
+	bool isOneEditDistance(string s, string t) {
+		if (s == t) return false;
+		int ns = s.size(), nt = t.size();
+		if (ns > nt) {
+			return isOneEditDistance(t, s);
+		}
+		if (nt - ns > 1) return false;
+		for (int i = 0; i < ns; i++) {
+			if (s[i] != t[i]) {
+				if (ns == nt) {
+					return s.substr(i + 1) == t.substr(i + 1);
+				}
+				else {
+					return s.substr(i) == t.substr(i + 1);
+				}
+			}
+		}
+		return true;
+	}
+
+	int game2(vector<int>& guess, vector<int>& answer) {
+		int ans = 0;
+		for (int i = 0; i < guess.size(); i++) {
+			if (guess[i] == answer[i])
+				ans++;
+		}
+		return ans;
+	}
+
+	int minCount(vector<int>& coins) {
+		int res = 0;
+		for (int c : coins) {
+			if (c % 2 == 0) res += c / 2;
+			else res += (c + 1) / 2;
+		}
+		return res;
+	}
+
+	//??
+	int minimumOperations(string leaves) {
+		int n = leaves.size();
+		vector<vector<int>> f(n, vector<int>(3));
+		f[0][0] = (leaves[0] == 'y');
+		f[0][1] = f[0][2] = f[1][2] = INT_MAX;
+		for (int i = 1; i < n; ++i) {
+			int isRed = (leaves[i] == 'r');
+			int isYellow = (leaves[i] == 'y');
+			f[i][0] = f[i - 1][0] + isYellow;
+			f[i][1] = min(f[i - 1][0], f[i - 1][1]) + isRed;
+			if (i >= 2) {
+				f[i][2] = min(f[i - 1][1], f[i - 1][2]) + isYellow;
+			}
+		}
+		return f[n - 1][2];
+	}
+
+	bool robot(string command, vector<vector<int>>& obstacles, int x, int y) {
+		int cx = 0, cy = 0, cnt = 0;
+		while(true) {
+			char c = command[cnt % command.size()];
+			if (c == 'U') {
+				cy++;
+			}else if (c == 'R') {
+				cx++;
+			}
+			cnt++;
+			if (cy > y || cx > x) return false;
+			if (cy == y && cx == x) return true;
+			for (const auto& o : obstacles) {
+				if (cx == o[0] && cy == o[1]) return false;
+			}
+		}
+	}
+
+	int videoStitching(vector<vector<int>>& clips, int T) {
+		vector<int> dp(T + 1, INT_MAX-1);
+		dp[0] = 0;
+		for (int i = 1; i <= T; ++i) {
+			for (const auto& c : clips) {
+				if (c[0] < i && i <= c[1]) {
+					dp[i] = min(dp[i], dp[c[0]] + 1);
+				}
+			}
+		}
+		return dp[T] == INT_MAX-1 ? -1 : dp[T];
+	}
+
+	bool canJump2(vector<int>& nums) {
+		int n = nums.size();
+		int right = 0;
+		for (int i = 0; i < n; ++i) {
+			if (i <= right) {
+				right = max(right, nums[i] + i);
+				if (right >= n-1) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	vector<vector<int>> merge3(vector<vector<int>>& intervals) {
+		vector<vector<int>> res;
+		sort(intervals.begin(), intervals.end(), [](const auto& p1, const auto& p2) {
+			return p1[0] < p2[0];
+			});
+		bool flag = false;
+		for (const auto& i : intervals) {
+			flag = false;
+			for (auto& r : res) {
+				if (r[1] >= i[0] && r[1] <= i[1] ) {
+					r[1] = i[1];
+					flag = true;
+				}
+				else if (r[0] <= i[0] && r[1] >= i[1]) {
+					flag = true;
+				}
+			}
+			if (!flag) {
+				res.push_back(i);
+			}
+		}
+		return res;
+	}
+
+	bool canAttendMeetings(vector<vector<int>>& intervals) {
+		if (intervals.size() == 0) return true;
+		sort(intervals.begin(), intervals.end(), [](const auto& p1, const auto& p2) {
+			return p1[0] < p2[0];
+			});
+		for (int i = 0; i < intervals.size()-1; ++i) {
+			if (intervals[i][1] > intervals[i + 1][0]) return false;
+		}
+		return true;
 	}
 };
