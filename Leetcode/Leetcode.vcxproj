@@ -141,6 +141,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="dp.h" />
+    <ClInclude Include="randomizedCol.h" />
     <ClInclude Include="solution.h" />
     <ClInclude Include="test2.h" />
   </ItemGroup>
