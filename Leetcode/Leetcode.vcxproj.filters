@@ -27,6 +27,9 @@
     <ClInclude Include="dp.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="daily.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

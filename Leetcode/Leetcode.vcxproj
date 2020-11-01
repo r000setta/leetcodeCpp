@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="daily.h" />
     <ClInclude Include="dp.h" />
     <ClInclude Include="randomizedCol.h" />
     <ClInclude Include="solution.h" />
